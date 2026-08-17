@@ -239,20 +239,23 @@ SERIES: tuple[SeriesDef, ...] = (
             "реално поевтинява."
         ),
         source=SourceSystem.EUROSTAT,
-        source_ref="prc_hicp_manr",
+        # Ползваме краткосрочния набор, а не prc_hicp_manr: вторият изостава
+        # с месеци (последно наблюдение декември 2025 при проверка през август
+        # 2026), докато този носи миналия месец. Стойностите съвпадат.
+        source_ref="ei_cphi_m",
         frequency=Frequency.MONTHLY,
         unit=Unit.PERCENT_CHANGE,
-        params={"geo": "BG", "coicop": "CP00", "unit": "RCH_A"},
+        params={"geo": "BG", "unit": "RT12", "indic": "TOTAL"},
     ),
     SeriesDef(
         code=HICP_EU,
         name_bg="Инфлация в ЕС (ХИПЦ, годишна)",
         plain_bg="Същото измерване, но за целия Европейски съюз.",
         source=SourceSystem.EUROSTAT,
-        source_ref="prc_hicp_manr",
+        source_ref="ei_cphi_m",
         frequency=Frequency.MONTHLY,
         unit=Unit.PERCENT_CHANGE,
-        params={"geo": "EU27_2020", "coicop": "CP00", "unit": "RCH_A"},
+        params={"geo": "EU27_2020", "unit": "RT12", "indic": "TOTAL"},
     ),
     SeriesDef(
         code=BG_GOV_BALANCE,
