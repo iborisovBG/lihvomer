@@ -1,0 +1,27 @@
+# Тайни — никога в хранилището
+.env
+.env.local
+.env.production
+*.pem
+*.key
+secrets.env
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Инструменти
+.DS_Store
+.rsyncignore
+
+# Локални настройки на инструмента — съдържат адреси на сървъри
+.claude/settings.local.json

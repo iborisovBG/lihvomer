@@ -1,0 +1,300 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   Дизайн система по езика на Apple (iOS 26 / macOS Tahoe).
+
+   Три пласта:
+   1. Системни цветове и семантични етикети, както ги дефинира Apple.
+   2. Типографска стълба с размерите и междубуквията на San Francisco.
+   3. Liquid Glass — слоест материал с размиване, огледален ръб и адаптивна
+      сянка.
+
+   Токените с общи имена (--background, --card, --primary…) се запазват, за да
+   не се чупят съществуващите компоненти; те сочат към новите системни
+   стойности.
+   ========================================================================== */
+
+@layer base {
+  :root {
+    /* --- Системни цветове на Apple, светъл вариант ------------------------ */
+    --sys-blue: 211 100% 50%;      /* #007AFF */
+    --sys-green: 142 71% 45%;      /* #34C759 */
+    --sys-red: 3 100% 59%;         /* #FF3B30 */
+    --sys-orange: 28 100% 52%;     /* #FF9500 */
+    --sys-indigo: 235 79% 58%;     /* #5856D6 */
+
+    --sys-bg: 0 0% 100%;
+    --sys-bg-secondary: 240 24% 96%;
+    --sys-grouped-bg: 240 24% 96%;
+
+    /* Етикети — йерархия през прозрачност, както в UIKit. */
+    --sys-label: 0 0% 0%;
+    --label-1: 1;
+    --label-2: 0.6;
+    --label-3: 0.3;
+
+    --sys-separator: 240 10% 50%;
+    --separator-opacity: 0.22;
+
+    /* Стъклото: прозрачност, размиване, ръб и сянка. */
+    --glass-tint: 0 0% 100%;
+    --glass-opacity: 0.62;
+    --glass-blur: 28px;
+    --glass-edge: 0 0% 100%;
+    --glass-edge-opacity: 0.55;
+    --glass-shadow: 240 30% 20%;
+    --glass-shadow-opacity: 0.1;
+
+    /* --- Съвместимост със съществуващите компоненти ---------------------- */
+    --background: var(--sys-grouped-bg);
+    --surface: var(--sys-bg);
+    --foreground: var(--sys-label);
+    --card: var(--sys-bg);
+    --card-foreground: var(--sys-label);
+    --primary: var(--sys-blue);
+    --primary-foreground: 0 0% 100%;
+    --accent: 211 100% 96%;
+    --muted: 240 20% 94%;
+    --muted-foreground: 240 6% 42%;
+    --border: 240 12% 88%;
+    --ring: var(--sys-blue);
+    --destructive: var(--sys-red);
+    --destructive-foreground: 0 0% 100%;
+    --good: var(--sys-green);
+    --warn: var(--sys-orange);
+    --bad: var(--sys-red);
+  }
+
+  :root[data-theme="dark"] {
+    --sys-blue: 211 100% 58%;      /* #0A84FF */
+    --sys-green: 142 69% 51%;      /* #30D158 */
+    --sys-red: 3 100% 62%;         /* #FF453A */
+    --sys-orange: 32 100% 55%;     /* #FF9F0A */
+    --sys-indigo: 242 84% 66%;
+
+    --sys-bg: 0 0% 0%;
+    --sys-bg-secondary: 240 6% 11%;
+    --sys-grouped-bg: 0 0% 0%;
+
+    --sys-label: 0 0% 100%;
+    --label-2: 0.6;
+    --label-3: 0.3;
+
+    --sys-separator: 240 10% 60%;
+    --separator-opacity: 0.3;
+
+    --glass-tint: 240 10% 20%;
+    --glass-opacity: 0.55;
+    --glass-edge: 0 0% 100%;
+    --glass-edge-opacity: 0.14;
+    --glass-shadow: 0 0% 0%;
+    --glass-shadow-opacity: 0.45;
+
+    --surface: var(--sys-bg-secondary);
+    --card: var(--sys-bg-secondary);
+    --accent: 211 60% 16%;
+    --muted: 240 6% 16%;
+    --muted-foreground: 240 6% 66%;
+    --border: 240 6% 22%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground) / var(--label-1));
+    /* -apple-system дава истински San Francisco на устройства на Apple. */
+    font-family:
+      -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+      system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.47;
+    letter-spacing: -0.022em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* --- Типографска стълба на Apple -------------------------------------
+     Префиксът е `type-`, а не `text-`, съзнателно: tailwind-merge приема
+     всеки `text-*` за размер или цвят и изхвърля по-ранния, когато `cn()`
+     комбинира типография с цвят. С отделен префикс двете съжителстват. */
+  .type-large-title { font-size: 2.125rem; line-height: 1.2; letter-spacing: 0.008em; font-weight: 700; }
+  .type-title-1 { font-size: 1.75rem; line-height: 1.21; letter-spacing: 0.007em; font-weight: 700; }
+  .type-title-2 { font-size: 1.375rem; line-height: 1.27; letter-spacing: 0.016em; font-weight: 600; }
+  .type-title-3 { font-size: 1.25rem; line-height: 1.25; letter-spacing: 0.019em; font-weight: 600; }
+  .type-headline { font-size: 1.0625rem; line-height: 1.29; letter-spacing: -0.024em; font-weight: 600; }
+  .type-body { font-size: 1.0625rem; line-height: 1.29; letter-spacing: -0.022em; }
+  .type-callout { font-size: 1rem; line-height: 1.31; letter-spacing: -0.02em; }
+  .type-subhead { font-size: 0.9375rem; line-height: 1.33; letter-spacing: -0.016em; }
+  .type-footnote { font-size: 0.8125rem; line-height: 1.38; letter-spacing: -0.006em; }
+  .type-caption { font-size: 0.75rem; line-height: 1.33; letter-spacing: 0; }
+
+  /* Числата се подравняват по колони, затова винаги са с еднаква ширина. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  h1, h2, h3 { text-wrap: balance; }
+
+  /* --- Достъпност ------------------------------------------------------- */
+  :focus-visible {
+    outline: 3px solid hsl(var(--ring) / 0.6);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* При повишен контраст стъклото става почти плътно, за да остане четимо. */
+  @media (prefers-contrast: more) {
+    :root {
+      --glass-opacity: 0.95;
+      --separator-opacity: 0.5;
+      --label-2: 0.78;
+    }
+  }
+
+  ::selection { background: hsl(var(--sys-blue) / 0.24); }
+}
+
+/* Кривите на Apple. Стандартната е за преходи между състояния, а spring —
+   за елементи, които се появяват: те леко надскачат целта, преди да спрат. */
+:root {
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.94); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@layer components {
+  /* --- Liquid Glass -----------------------------------------------------
+     Три пласта, както го описва Apple: полупрозрачен материал, огледален ръб
+     отгоре и адаптивна сянка отдолу. Размиването се прилага само при
+     поддръжка; иначе материалът остава плътен и четим. */
+  .glass {
+    position: relative;
+    background: hsl(var(--glass-tint) / var(--glass-opacity));
+    border: 0.5px solid hsl(var(--sys-separator) / var(--separator-opacity));
+    box-shadow:
+      inset 0 0.5px 0 hsl(var(--glass-edge) / var(--glass-edge-opacity)),
+      0 1px 2px hsl(var(--glass-shadow) / calc(var(--glass-shadow-opacity) * 0.5)),
+      0 12px 32px -8px hsl(var(--glass-shadow) / var(--glass-shadow-opacity));
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .glass {
+      backdrop-filter: saturate(180%) blur(var(--glass-blur));
+      -webkit-backdrop-filter: saturate(180%) blur(var(--glass-blur));
+    }
+  }
+
+  /* По-плътен вариант за ленти върху скролиращо съдържание. */
+  .glass-bar {
+    background: hsl(var(--glass-tint) / 0.82);
+    border-color: hsl(var(--sys-separator) / var(--separator-opacity));
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    .glass-bar {
+      background: hsl(var(--glass-tint) / 0.6);
+      backdrop-filter: saturate(180%) blur(24px);
+      -webkit-backdrop-filter: saturate(180%) blur(24px);
+    }
+  }
+
+  /* Отблясъкът, който Apple нарича specular highlight: светла дъга по горния
+     ръб, която подсказва, че материалът е извит. */
+  .glass-specular::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 40%;
+    border-radius: inherit;
+    background: linear-gradient(
+      to bottom,
+      hsl(var(--glass-edge) / calc(var(--glass-edge-opacity) * 0.5)),
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  .list-group { border-radius: 1.125rem; overflow: hidden; }
+  .list-row + .list-row {
+    border-top: 0.5px solid hsl(var(--sys-separator) / var(--separator-opacity));
+  }
+
+  /* Натискането свива елемента леко, както на iOS. */
+  .press {
+    transition:
+      transform 140ms var(--ease-spring),
+      opacity 140ms var(--ease-standard),
+      background-color 140ms var(--ease-standard);
+  }
+  .press:active { transform: scale(0.97); opacity: 0.85; }
+
+  /* Съдържанието се появява отдолу нагоре, а не рязко. Всяко дете тръгва
+     малко след предишното — Apple нарича това каскада. */
+  @media (prefers-reduced-motion: no-preference) {
+    .rise { animation: rise-in 420ms var(--ease-spring) both; }
+    .cascade > * { animation: rise-in 420ms var(--ease-spring) both; }
+    .cascade > *:nth-child(1) { animation-delay: 0ms; }
+    .cascade > *:nth-child(2) { animation-delay: 45ms; }
+    .cascade > *:nth-child(3) { animation-delay: 90ms; }
+    .cascade > *:nth-child(4) { animation-delay: 135ms; }
+    .cascade > *:nth-child(5) { animation-delay: 180ms; }
+    .cascade > *:nth-child(6) { animation-delay: 215ms; }
+    .cascade > *:nth-child(n + 7) { animation-delay: 250ms; }
+  }
+
+  /* Числата, които се променят, пулсират леко вместо да скачат. */
+  @media (prefers-reduced-motion: no-preference) {
+    .value-shift { transition: color 300ms var(--ease-standard); }
+  }
+
+  .surface-ring {
+    box-shadow:
+      0 1px 2px hsl(var(--glass-shadow) / 0.05),
+      0 8px 24px -6px hsl(var(--glass-shadow) / 0.08);
+  }
+}

@@ -1,0 +1,25 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+psycopg[binary]==3.2.3
+alembic==1.14.0
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0
+python-multipart==0.0.20
+PyJWT==2.10.1
+bcrypt==4.2.1
+httpx==0.28.1
+tenacity==9.0.0
+pandas==2.2.3
+numpy==2.2.1
+scipy==1.14.1
+statsmodels==0.14.4
+scikit-learn==1.6.0
+celery[redis]==5.4.0
+redis==5.2.1
+feedparser==6.0.11
+
+# Офлайн превод EN→BG. Изпълнява се локално: без ключ, без такса и без
+# изпращане на съдържание към трета страна.
+argostranslate==1.9.6
