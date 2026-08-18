@@ -28,6 +28,7 @@ from app.schemas import (
     SpreadPointOut,
 )
 from app.services import fiscal as fiscal_service
+from app.worker.celery_app import SCHEDULE_BG
 from app.services import spending as spending_service
 from app.services.analytics_cache import get_or_compute
 
@@ -257,13 +258,6 @@ def data_sources(db: DbSession) -> SourcesOut:
     )
 
 
-SCHEDULE_BG = {
-    "ingest_macro": "всеки ден в 07:15 и 18:30",
-    "ingest_news": "на всеки 3 часа",
-    "refresh_analytics": "всеки ден в 19:00",
-    "prune_job_history": "всеки понеделник в 03:30",
-    "check_external_links": "всеки понеделник в 04:15",
-}
 
 
 @router.get("/system/automation", response_model=AutomationOut)

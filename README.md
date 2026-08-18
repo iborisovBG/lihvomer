@@ -166,11 +166,16 @@ cd backend
 
 | Job | Schedule |
 |---|---|
-| Macro data | 07:15 and 18:30 daily |
-| News and translation | every 3 hours |
-| Model refresh | 19:00 daily |
+| Macro data | every 3 hours (00:15, 03:15, … 21:15) |
+| News and translation | every 3 hours (00:05, 03:05, … 21:05) |
+| Model refresh | whenever ingestion brings a newer observation, plus 19:00 daily |
 | Notifications | 19:30 daily |
 | External link check | Mondays 04:15 |
+| Job history pruning | Mondays 03:30 |
+
+The schedule lives in one place — `JOBS` in `backend/app/worker/celery_app.py`. Both
+the beat schedule and the Bulgarian text the app shows are derived from it, so the
+two cannot drift apart.
 
 Status is visible at `/api/v1/system/automation`.
 

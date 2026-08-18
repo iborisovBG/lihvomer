@@ -3,13 +3,13 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from contextlib import contextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
-from sqlalchemy import delete
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.models import JobRun, JobStatus
+from app.models import JobRun, JobStatus, MacroObservation, MacroSeries
 from app.worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -56,16 +56,43 @@ def _with_session(work: Callable[[Session, dict], None], job_name: str) -> dict:
     return outcome
 
 
+def _latest_observation_dates(db: Session) -> dict[str, date]:
+    """Последната дата с наблюдение за всеки ред, преди да заредим наново."""
+    rows = db.execute(
+        select(MacroSeries.code, func.max(MacroObservation.obs_date))
+        .join(MacroObservation, MacroObservation.series_id == MacroSeries.id)
+        .group_by(MacroSeries.code)
+    ).all()
+    return {code: latest for code, latest in rows if latest is not None}
+
+
 @celery_app.task(name="app.worker.tasks.ingest_macro")
-def ingest_macro() -> dict:
-    """Тегли всички макроикономически редове от публичните API-та."""
+def ingest_macro(trigger_analytics: bool = True) -> dict:
+    """Тегли всички макроикономически редове от публичните API-та.
+
+    Записът е upsert, затова броят записани редове не казва нищо за това
+    дали е дошло нещо ново — при всяко пускане се презаписват и вече
+    познатите наблюдения. Единственият честен признак за ново е дали
+    последната дата с наблюдение е мръднала напред, затова я сравняваме
+    преди и след зареждането и само тогава преоценяваме моделите.
+    """
     from app.ingestion.runner import ingest_all
     from app.services.analytics_cache import invalidate
 
     def work(db: Session, outcome: dict) -> None:
+        before = _latest_observation_dates(db)
         results = ingest_all(db)
         outcome["ok"] = sum(1 for r in results if r.ok)
         outcome["failed"] = sum(1 for r in results if not r.ok)
+
+        advanced = sorted(
+            r.code
+            for r in results
+            if r.ok
+            and r.latest_date is not None
+            and (r.code not in before or r.latest_date > before[r.code])
+        )
+
         outcome["detail"] = {
             "series": {
                 r.code: (
@@ -74,9 +101,21 @@ def ingest_macro() -> dict:
                     else {"error": r.error}
                 )
                 for r in results
-            }
+            },
+            "advanced": advanced,
         }
         invalidate()
+
+        if advanced and trigger_analytics:
+            # Данните вече са записани успешно. Ако брокерът куца, това не
+            # бива да маркира зареждането като провалено — вечерното пускане
+            # на аналитиката ще навакса.
+            try:
+                refresh_analytics.delay()
+                outcome["detail"]["analytics_triggered"] = True
+            except Exception as exc:
+                logger.warning("Не успях да пусна refresh_analytics: %s", exc)
+                outcome["detail"]["analytics_triggered"] = False
 
     return _with_session(work, "ingest_macro")
 
@@ -184,8 +223,12 @@ def prune_job_history() -> dict:
 
 @celery_app.task(name="app.worker.tasks.refresh_everything")
 def refresh_everything() -> dict:
-    """Пълно обновяване — ползва се при първоначално пускане."""
-    ingest_macro()
+    """Пълно обновяване — ползва се при първоначално пускане.
+
+    Аналитиката се вика тук направо, затова изключваме автоматичното ѝ
+    пускане от ingest_macro — иначе би се преоценило два пъти.
+    """
+    ingest_macro(trigger_analytics=False)
     ingest_news()
     return refresh_analytics()
 
