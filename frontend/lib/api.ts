@@ -42,17 +42,38 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   try {
     response = await fetch(`${API_BASE}${path}`, { ...init, headers });
   } catch {
+    // В продукция API_BASE е празен низ, затова адресът се показва само
+    // когато наистина има какво да се покаже — иначе съобщението завършваше
+    // с увиснало „стартиран на " и не помагаше на никого.
     throw new ApiError(
       0,
-      "Няма връзка със сървъра. Проверете дали бекендът е стартиран на " +
-        API_BASE,
+      API_BASE
+        ? `Няма връзка със сървъра на ${API_BASE}. Проверете дали бекендът е стартиран.`
+        : "Няма връзка със сървъра. Проверете интернет връзката си и опитайте отново.",
     );
   }
 
   if (response.status === 204) return undefined as T;
 
   const body = await response.text();
-  const parsed = body ? JSON.parse(body) : null;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let parsed: any = null;
+  if (body) {
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      // Сървърът е отговорил, но не с JSON — почти винаги HTML страница за
+      // грешка, когато /api не е маршрутизиран или тече обновяване. Без тази
+      // защита потребителят вижда суровото „Unexpected token '<'".
+      throw new ApiError(
+        response.status,
+        response.ok
+          ? "Сървърът отговори с нещо, което не е данни. Вероятно тече обновяване — опитайте отново след минута."
+          : `Заявката се провали (${response.status}).`,
+      );
+    }
+  }
 
   if (!response.ok) {
     const detail = parsed?.detail;
